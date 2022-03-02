@@ -13,6 +13,7 @@
 #include "./lock_account.cpp"
 #include "./record.cpp"
 #include "./uniswap.cpp"
+#include "./nft.cpp"
 
 namespace eosio {
 
@@ -34,4 +35,6 @@ EOSIO_ABI(eosio::token,
     //
     (addreserves)(outreserves)(withdraw)
     //
-    (unlckreserve)(lockreserve))
+    (unlckreserve)(lockreserve)
+    //
+    (nftcreatesym)(nftcreate)(nftissue)(nfttransfer)(nfttransferb)(nftburn)(burnbatch))
