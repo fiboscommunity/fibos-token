@@ -3,7 +3,7 @@ var _prvkey = '5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3';
 
 var fibos = require('fibos');
 
-let FIBOS = require('./fibos.js');
+let FIBOS = require('fibos.js');
 var coroutine = require('coroutine');
 var process = require('process');
 var fs = require('fs');
@@ -94,7 +94,7 @@ function node() {
             let info = fibos.getInfoSync();
             if (info.head_block_num === 3)
                 break;
-        } catch (e) { }
+        } catch (e) {}
     }
 }
 
@@ -108,11 +108,57 @@ const config = {
     }
 };
 
+function deployCont(fibos, account, contract, authorization, contractpath) {
+    console.notice(path.resolve(__dirname, `${contractpath}/${contract}/${contract}.wasm`));
+    var c1 = fibos.getCodeSync(account, true);
+    const wasm = fs.readFile(path.resolve(__dirname, `${contractpath}/${contract}/${contract}.wasm`));
+    const abi = fs.readFile(path.resolve(__dirname, `${contractpath}/${contract}/${contract}.abi`));
+
+    fibos.setcodeSync(account, 0, 0, wasm, {
+        authorization: authorization
+    });
+    fibos.setabiSync(account, JSON.parse(abi), {
+        authorization: authorization
+    });
+    var c2 = fibos.getCodeSync(account, true);
+    assert.notEqual(c2.code_hash, "0000000000000000000000000000000000000000000000000000000000000000");
+    assert.notEqual(c2.code_hash, c1.code_hash);
+
+    const code = fibos.getAbiSync(account);
+    const diskAbi = JSON.parse(abi);
+    delete diskAbi.____comment;
+    if (!diskAbi.error_messages) {
+        diskAbi.error_messages = [];
+    }
+
+    fibos.updateauthSync({
+        account: account,
+        permission: "active",
+        parent: 'owner',
+        auth: {
+            threshold: 1,
+            keys: [{
+                key: "FO6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
+                weight: 1
+            }],
+            "accounts": [{
+                "permission": {
+                    "actor": account,
+                    "permission": "eosio.code"
+                },
+                "weight": 1
+            }]
+        }
+    }, {
+        authorization: authorization
+    })
+}
+
 function runBIOS() {
     let ctx, name, fibos;
 
     function deploy(fibos, account, contract, authorization, contractpath) {
-        it(`deploy ${contract}@${account}`, function () {
+        it(`deploy ${contract}@${account}`, function() {
             console.notice(path.resolve(__dirname, `${contractpath}/${contract}/${contract}.wasm`));
             var c1 = fibos.getCodeSync(account, true);
             const wasm = fs.readFile(path.resolve(__dirname, `${contractpath}/${contract}/${contract}.wasm`));
@@ -390,5 +436,6 @@ module.exports = {
     checkunswapmarket: checkunswapmarket,
     checkmarketpool: checkmarketpool,
     checkmarketorder: checkmarketorder,
-    exchange: exchange
+    exchange: exchange,
+    deployCont: deployCont,
 }

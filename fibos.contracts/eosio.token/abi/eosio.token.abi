@@ -3,6 +3,9 @@
    "types": [{
       "new_type_name": "account_name",
       "type": "name"
+   },{
+      "new_type_name": "nft_type",
+      "type": "uint8"
    }],
   "structs": [{
       "name": "extended_symbol",
@@ -367,6 +370,230 @@
         {"name":"owner", "type":"account_name"},
         {"name":"request_time", "type":"time_point_sec"}
       ]
+    },{
+      "name": "burnbatch",
+      "base": "",
+      "fields": [
+        {
+          "name": "from",
+          "type": "name"
+        },
+        {
+          "name": "batch_args",
+          "type": "nft_batch_args[]"
+        }
+      ]
+    }, {
+      "name": "nft_balance",
+      "base": "",
+      "fields": [
+        {
+          "name": "primary",
+          "type": "uint64"
+        },
+        {
+          "name": "owner",
+          "type": "name"
+        },
+        {
+          "name": "nft_id",
+          "type": "uint64"
+        },
+        {
+          "name": "quantity",
+          "type": "extended_asset"
+        }
+      ]
+    },
+    {
+      "name": "nft_batch_args",
+      "base": "",
+      "fields": [
+        {
+          "name": "nft_id",
+          "type": "uint64"
+        },
+        {
+          "name": "quantity",
+          "type": "extended_asset"
+        }
+      ]
+    },
+    {
+      "name": "nft_info",
+      "base": "",
+      "fields": [
+        {
+          "name": "nft_id",
+          "type": "uint64"
+        },
+        {
+          "name": "supply",
+          "type": "extended_asset"
+        },
+        {
+          "name": "nft_uri",
+          "type": "string"
+        },
+        {
+          "name": "nft_name",
+          "type": "string"
+        },
+        {
+          "name": "extra_data",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "nft_symbol_info",
+      "base": "",
+      "fields": [
+        {
+          "name": "symbol_id",
+          "type": "uint64"
+        },
+        {
+          "name": "nft_symbol",
+          "type": "extended_symbol"
+        },
+        {
+          "name": "symbol_uri",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "nft_type"
+        }
+      ]
+    },
+    {
+      "name": "nftburn",
+      "base": "",
+      "fields": [
+        {
+          "name": "from",
+          "type": "name"
+        },
+        {
+          "name": "nft_id",
+          "type": "uint64"
+        },
+        {
+          "name": "quantity",
+          "type": "extended_asset"
+        }
+      ]
+    },
+    {
+      "name": "nftcreate",
+      "base": "",
+      "fields": [
+        {
+          "name": "to",
+          "type": "name"
+        },
+        {
+          "name": "nft_uri",
+          "type": "string"
+        },
+        {
+          "name": "nft_name",
+          "type": "string"
+        },
+        {
+          "name": "extra_data",
+          "type": "string"
+        },
+        {
+          "name": "quantity",
+          "type": "extended_asset"
+        }
+      ]
+    },
+    {
+      "name": "nftcreatesym",
+      "base": "",
+      "fields": [
+        {
+          "name": "nft_symbol",
+          "type": "extended_symbol"
+        },
+        {
+          "name": "symbol_uri",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "nft_type"
+        }
+      ]
+    },
+    {
+      "name": "nftissue",
+      "base": "",
+      "fields": [
+        {
+          "name": "to",
+          "type": "name"
+        },
+        {
+          "name": "nft_id",
+          "type": "uint64"
+        },
+        {
+          "name": "quantity",
+          "type": "extended_asset"
+        }
+      ]
+    },
+    {
+      "name": "nfttransfer",
+      "base": "",
+      "fields": [
+        {
+          "name": "from",
+          "type": "name"
+        },
+        {
+          "name": "to",
+          "type": "name"
+        },
+        {
+          "name": "nft_id",
+          "type": "uint64"
+        },
+        {
+          "name": "quantity",
+          "type": "extended_asset"
+        },
+        {
+          "name":"memo",
+          "type":"string"
+        }
+      ]
+    },
+    {
+      "name": "nfttransferb",
+      "base": "",
+      "fields": [
+        {
+          "name": "from",
+          "type": "name"
+        },
+        {
+          "name": "to",
+          "type": "name"
+        },
+        {
+          "name": "batch_args",
+          "type": "nft_batch_args[]"
+        },
+        {
+          "name":"memo",
+          "type":"string"
+        }
+      ]
     }
   ],
   "actions": [{
@@ -501,7 +728,41 @@
       "name": "unlckreserve",
       "type": "unlckreserve",
       "ricardian_contract": ""
-    }
+    },        {
+      "name": "burnbatch",
+      "type": "burnbatch",
+      "ricardian_contract": ""
+  },
+  {
+      "name": "nftburn",
+      "type": "nftburn",
+      "ricardian_contract": ""
+  },
+  {
+      "name": "nftcreate",
+      "type": "nftcreate",
+      "ricardian_contract": ""
+  },
+  {
+      "name": "nftcreatesym",
+      "type": "nftcreatesym",
+      "ricardian_contract": ""
+  },
+  {
+      "name": "nftissue",
+      "type": "nftissue",
+      "ricardian_contract": ""
+  },
+  {
+      "name": "nfttransfer",
+      "type": "nfttransfer",
+      "ricardian_contract": ""
+  },
+  {
+      "name": "nfttransferb",
+      "type": "nfttransferb",
+      "ricardian_contract": ""
+  }
   ],
   "tables": [{
       "name": "accounts",
@@ -551,7 +812,27 @@
       "index_type": "i64",
       "key_names" : ["owner"],
       "key_types" : ["uint64"]
-    }
+    },        {
+      "name": "nftbalance",
+      "type": "nft_balance",
+      "index_type": "i64",
+      "key_names": ["primary"],
+      "key_types": ["uint64"]
+  },
+  {
+      "name": "nftinfo",
+      "type": "nft_info",
+      "index_type": "i64",
+      "key_names": ["nft_id"],
+      "key_types": ["uint64"]
+  },
+  {
+      "name": "nftsymbols",
+      "type": "nft_symbol_info",
+      "index_type": "i64",
+      "key_names": ["symbol_id"],
+      "key_types": ["uint64"]
+  }
   ],
   "ricardian_clauses": [],
   "abi_extensions": []

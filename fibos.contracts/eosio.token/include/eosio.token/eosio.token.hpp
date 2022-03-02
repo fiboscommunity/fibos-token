@@ -28,6 +28,15 @@ constexpr uint64_t uint64_max = ~uint64_t(0);
 constexpr uint64_t uniswap_order_prefix = 0xFF00000000000000;
 constexpr uint64_t minimum_token_precision = 4;
 
+enum nft_type_struct {
+    NftTypeBegin = 0,
+    ERC721 = 1,
+    ERC1155 = 2,
+    NftTypeEnd,
+};
+
+typedef uint8_t nft_type;
+
 class token : public contract {
     struct uniswap_state;
 
@@ -36,6 +45,11 @@ public:
         : contract(self)
     {
     }
+
+    struct nft_batch_args {
+        uint64_t nft_id;
+        extended_asset quantity;
+    };
 
 public:
     /*! @brief ClassicToken 创建函数
@@ -254,6 +268,20 @@ public:
     */
     void unlckreserve(account_name owner, extended_symbol x, extended_symbol y);
 
+    void nftcreatesym(extended_symbol nft_symbol, std::string symbol_uri, nft_type type);
+
+    void nftcreate(name to, std::string nft_uri, std::string nft_name, std::string extra_data, extended_asset quantity);
+
+    void nftissue(name to, uint64_t nft_id, extended_asset quantity);
+
+    void nfttransfer(name from, name to, uint64_t nft_id, extended_asset quantity, std::string memo);
+
+    void nfttransferb(name from, name to, std::vector<nft_batch_args> batch_args, std::string memo);
+
+    void nftburn(name from, uint64_t nft_id, extended_asset quantity);
+
+    void burnbatch(name from, std::vector<nft_batch_args> batch_args);
+
 private:
     bool check_bancor_pair(const extended_symbol& x, const extended_symbol& y);
     void bancororder(account_name owner, extended_asset quantity, extended_symbol tosym);
@@ -440,6 +468,63 @@ private:
         uint64_t primary;
         time now;
     };
+
+    struct nft_symbol_info {
+        uint64_t symbol_id;
+        extended_symbol nft_symbol;
+        std::string symbol_uri;
+        nft_type type;
+
+        uint64_t primary_key() const { return symbol_id; }
+
+        static uint128_t get_extended_symbol(extended_symbol symbol)
+        {
+            return ((uint128_t(symbol.name()) << 64) + symbol.contract);
+        }
+        uint128_t by_symbol() const { return get_extended_symbol(nft_symbol); }
+
+        EOSLIB_SERIALIZE(nft_symbol_info, (symbol_id)(nft_symbol)(symbol_uri)(type))
+    };
+
+    typedef eosio::multi_index<N(nftsymbols), nft_symbol_info,
+        indexed_by<N(extsymbol), const_mem_fun<nft_symbol_info, uint128_t, &nft_symbol_info::by_symbol>>>
+        nft_symbols;
+
+    struct nft_info {
+        uint64_t nft_id;
+        extended_asset supply;
+        std::string nft_uri;
+        std::string nft_name;
+        std::string extra_data;
+
+        uint64_t primary_key() const { return nft_id; }
+
+        EOSLIB_SERIALIZE(nft_info, (nft_id)(supply)(nft_uri)(nft_name)(extra_data))
+    };
+    typedef eosio::multi_index<N(nftinfo), nft_info> nft_infos;
+
+    struct nft_balance {
+        uint64_t primary;
+        name owner;
+        uint64_t nft_id;
+        extended_asset quantity;
+
+        uint64_t primary_key() const { return primary; }
+        uint64_t by_owner() const { return owner; }
+        uint64_t by_nft_id() const { return nft_id; }
+        static uint128_t get_owner_id(uint64_t owner, uint64_t nft_id)
+        {
+            return ((uint128_t(owner) << 64) + nft_id);
+        }
+        uint128_t by_owner_id() const { return get_owner_id(owner, nft_id); }
+
+        EOSLIB_SERIALIZE(nft_balance, (primary)(owner)(nft_id)(quantity))
+    };
+    typedef eosio::multi_index<N(nftbalance), nft_balance,
+        indexed_by<N(owner), const_mem_fun<nft_balance, uint64_t, &nft_balance::by_owner>>,
+        indexed_by<N(nftid), const_mem_fun<nft_balance, uint64_t, &nft_balance::by_nft_id>>,
+        indexed_by<N(ownerid), const_mem_fun<nft_balance, uint128_t, &nft_balance::by_owner_id>>>
+        nft_balances;
 
 private:
     inline static account_name get_foundation(account_name issuer)
